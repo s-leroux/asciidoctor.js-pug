@@ -26,4 +26,12 @@ describe("asciidoctor", function() {
     
     assert.include(html, '<A HREF="http://asciidoctor.org">asciidoctor</A>');
   });
+
+  it("should access attributes", function() {
+    const doc = asciidoctor.loadFile('./test/data/004-attributes.adoc');
+    const html = doc.convert();
+    debug(html);
+    
+    assert.include(html, '<IMG src="source.png" alt="Atl Text Here"></IMG>');
+  });
 });
