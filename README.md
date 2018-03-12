@@ -11,6 +11,27 @@ Override asciidoctor.js html5 output with pug templates.
     npm install --save asciidoctor.js-pug
     
 
+## Usage
+
+    // load asciidoctor.js
+    const asciidoctor = require('asciidoctor.js')();
+    
+    // load asciidoctor.js-pug giving path to your pug template directory
+    require('asciidoctor.js-pug')('./path/to/template/directory');
+    
+    // At this point, the html5 backend has been patched to try first
+    // a pug template then to fallback to the usual behavior if not found
+    
+    // Use asciidoctor.js as usually
+    asciidoctor.load("Hello world");
+    console.log(asciidoctor.convert());
+
+
+The template directory should contain one template per type of node. The
+template name is made of the node_name + the `.pug` extension.
+
+See the test/templates folder for some examples/
+
 ## Node version
 Require NodeJS >= v7.0
 Tested with v7.0, v7.6 and v8.9
