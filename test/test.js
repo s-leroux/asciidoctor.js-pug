@@ -19,7 +19,7 @@ describe("asciidoctor", function() {
     assert.include(html, '<PARA>');
   });
 
-  it("should find templates for inline elements", function() {
+  it("should find href and anchor's target", function() {
     const doc = asciidoctor.loadFile('./test/data/003-anchors.adoc');
     const html = doc.convert();
     debug(html);
