@@ -1,5 +1,6 @@
-const adp = require('../index.js')('./test/templates');
 const asciidoctor = require('asciidoctor.js')();
+require('../index.js')('./test/templates');
+
 const debug = require('debug')('asciidoctor.js-pug:tests');
 const assert = require('chai').assert;
 
