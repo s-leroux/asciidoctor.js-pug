@@ -1,6 +1,6 @@
 {
   "name": "asciidoctor.js-pug",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Allow to override the html5 output of asciidoctor.js with pug templates",
   "main": "index.js",
   "scripts": {
