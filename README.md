@@ -23,8 +23,8 @@ Override asciidoctor.js html5 output with pug templates.
     // a pug template then to fallback to the usual behavior if not found
     
     // Use asciidoctor.js as usually
-    asciidoctor.load("Hello world");
-    console.log(asciidoctor.convert());
+    const doc = asciidoctor.load("Hello world");
+    console.log(doc.convert());
 
 
 The template directory should contain one template per type of node. The
