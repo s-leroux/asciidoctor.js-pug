@@ -157,6 +157,22 @@ describe("opal-utils", function() {
       const obj = sub.$new();
       assert.equal(obj.$m(), 'overridden+original');
     });
+
+    it("should share context beween JS calls", function() {
+      const base = opalClass();
+      const sub = outils.subclass(base, {
+        'set': function() {
+          this.value = 1;
+        },
+        'get': function() {
+          return this.value;
+        },
+      });
+
+      const obj = sub.$new();
+      obj.set();
+      assert.equal(obj.get(), 1);
+    });
   });
 
 });
