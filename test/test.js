@@ -44,8 +44,8 @@ describe("asciidoctor", function() {
   });
 
   it("should build proper image URI", function() {
-    const doc = asciidoctor.loadFile('./test/data/005-img-uri.adoc');
-    const html = doc.convert({template_dirs: './test/templates'});
+    const doc = asciidoctor.loadFile('./test/data/005-img-uri.adoc', {template_dirs: './test/templates'});
+    const html = doc.convert();
     debug(html);
 
     assert.include(html, '<IMG src="https://image.dir/source.png" alt="Atl Text Here"></IMG>');
