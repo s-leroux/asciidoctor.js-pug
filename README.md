@@ -26,10 +26,10 @@ Override asciidoctor.js html5 output with pug templates.
     // to the default backend behavior if there is no specific template for
     // that node.
 
-    asciidoctor.load("Hello world",
+    const doc = asciidoctor.load("Hello world",
                      { template_dirs: './path/to/template/directory' });
 
-    console.log(asciidoctor.convert());
+    console.log(doc.convert());
 
 
 The template directory should contain one template per type of node. The
