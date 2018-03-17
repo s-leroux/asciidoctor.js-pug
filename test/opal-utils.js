@@ -8,6 +8,11 @@ const assert = require('chai').assert;
 
 
 describe("opal-utils", function() {
+
+  /**
+    Create a new Opal class defining the $m and $self method for
+    testing purposes.
+  */
   const opalClass = function() {
     const C = Opal.Class.$new(Opal.Object /*, function(){} */);
     Opal.defn(C, '$m', function(){ return "original"; });
@@ -112,4 +117,46 @@ describe("opal-utils", function() {
     });
 
   });
+
+  describe("subclass", function() {
+    it("should create new Opal-like class", function() {
+      const base = opalClass();
+      const sub = outils.subclass(base, {});
+
+      const obj = sub.$new();
+      assert.equal(obj.$m(), "original");
+    });
+
+    it("should properly set the inheritance chain", function() {
+      const base = opalClass();
+      const sub = outils.subclass(base, {});
+
+      assert.equal(sub.$$parent, base);
+    });
+
+    it("should allow overriding Opal base-class methods", function() {
+      const base = opalClass();
+      const sub = outils.subclass(base, {
+        '$m': function() {
+          return "overridden";
+        },
+      });
+
+      const obj = sub.$new();
+      assert.equal(obj.$m(), 'overridden');
+    });
+
+    it("should allow calling the inherited method", function() {
+      const base = opalClass();
+      const sub = outils.subclass(base, {
+        '$m': function() {
+          return "overridden+" + this.inherited.$m();
+        },
+      });
+
+      const obj = sub.$new();
+      assert.equal(obj.$m(), 'overridden+original');
+    });
+  });
+
 });
