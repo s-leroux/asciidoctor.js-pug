@@ -39,6 +39,44 @@ describe("opal-utils", function() {
 
   });
 
+  describe("const_get_qualified", function() {
+    const debug = require('debug')('asciidoctor.js-pug:opal-utils-modules');
+
+    require("asciidoctor.js")(); // Can't we avoid that depedency here?
+
+    it("should find a root module by absolute path", function() {
+      const module = outils.const_get_qualified("::Asciidoctor");
+      assert.equal(module.$$name, 'Asciidoctor');
+    });
+
+    it("should find a root module by relative path from root", function() {
+      const module = outils.const_get_qualified("::", "Asciidoctor");
+      assert.equal(module.$$name, 'Asciidoctor');
+    });
+
+    it("should find a nested module by absolute path", function() {
+      const module = outils.const_get_qualified("::Asciidoctor::Converter");
+      assert.equal(module.$$name, 'Converter');
+    });
+
+    it("should find a nested module by relative path", function() {
+      const base = outils.const_get_qualified("::", "Asciidoctor");
+      const module = outils.const_get_qualified(base, "Converter");
+      assert.equal(module.$$name, 'Converter');
+    });
+
+    it("should ignore base for absolute paths", function() {
+      const base = outils.const_get_qualified("::", "Asciidoctor");
+      const module = outils.const_get_qualified(base, "::Asciidoctor::Converter");
+      assert.equal(module.$$name, 'Converter');
+    });
+
+    it("should return `undefined` for missing module", function() {
+      const module = outils.const_get_qualified("::Asciidoctor::XYZ");
+      assert.isUndefined(module);
+    });
+  });
+
   describe("patch", function() {
     it("should replace existing methods", function() {
       const klass = opalClass();
