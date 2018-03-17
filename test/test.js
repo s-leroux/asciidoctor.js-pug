@@ -14,13 +14,13 @@ describe("asciidoctor", function() {
   });
 
   it("should convert simple texts", function() {
-    const doc = asciidoctor.loadFile('./test/data/001-plain-text.adoc');
+    const doc = asciidoctor.loadFile('./test/data/001-plain-text.adoc', {template_dirs: './test/templates'});
     const html = doc.convert({template_dirs: './test/templates'});
     debug(html);
   });
 
   it("should find templates for block elements", function() {
-    const doc = asciidoctor.loadFile('./test/data/002-blocks.adoc');
+    const doc = asciidoctor.loadFile('./test/data/002-blocks.adoc', {template_dirs: './test/templates'});
     const html = doc.convert({template_dirs: './test/templates'});
 
     debug(html);
@@ -28,7 +28,7 @@ describe("asciidoctor", function() {
   });
 
   it("should find href and anchor's target", function() {
-    const doc = asciidoctor.loadFile('./test/data/003-anchors.adoc');
+    const doc = asciidoctor.loadFile('./test/data/003-anchors.adoc', {template_dirs: './test/templates'});
     const html = doc.convert({template_dirs: './test/templates'});
     debug(html);
 
@@ -36,7 +36,7 @@ describe("asciidoctor", function() {
   });
 
   it("should access attributes", function() {
-    const doc = asciidoctor.loadFile('./test/data/004-attributes.adoc');
+    const doc = asciidoctor.loadFile('./test/data/004-attributes.adoc', {template_dirs: './test/templates'});
     const html = doc.convert({template_dirs: './test/templates'});
     debug(html);
 
