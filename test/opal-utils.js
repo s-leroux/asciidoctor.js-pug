@@ -157,7 +157,7 @@ describe("opal-utils", function() {
   });
 
   describe("subclass", function() {
-    it("should create new Opal-like class", function() {
+    it("should create new anonymous Opal-like class", function() {
       const base = opalClass();
       const sub = outils.subclass(base, {});
 
@@ -165,11 +165,22 @@ describe("opal-utils", function() {
       assert.equal(obj.$m(), "original");
     });
 
+    it("should create new named Opal-like class", function() {
+      const base = opalClass();
+      const sub = outils.subclass(
+                    outils.const_get_qualified('::Asciidoctor'),
+                    base, 'XYZ', {});
+
+      const klass = outils.const_get_qualified('::Asciidoctor::XYZ')
+      const obj = klass.$new();
+      assert.equal(obj.$m(), "original");
+    });
+
     it("should properly set the inheritance chain", function() {
       const base = opalClass();
       const sub = outils.subclass(base, {});
 
-      assert.equal(sub.$$parent, base);
+      assert.isTrue(sub.$$parent === base); // strictEqual has issues with circular refs.
     });
 
     it("should allow overriding Opal base-class methods", function() {
@@ -182,6 +193,21 @@ describe("opal-utils", function() {
 
       const obj = sub.$new();
       assert.equal(obj.$m(), 'overridden');
+    });
+
+    it("should allow overriding base-class methods in named Opal-like class", function() {
+      const base = opalClass();
+      const sub = outils.subclass(
+                    outils.const_get_qualified('::Asciidoctor'),
+                    base, 'ABC', {
+                      '$m': function() {
+                        return "overridden";
+                      },
+                    });
+
+      const klass = outils.const_get_qualified('::Asciidoctor::ABC')
+      const obj = klass.$new();
+      assert.equal(obj.$m(), "overridden");
     });
 
     it("should allow calling the inherited method", function() {
