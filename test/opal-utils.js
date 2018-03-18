@@ -15,6 +15,7 @@ describe("opal-utils", function() {
   */
   const opalClass = function() {
     const C = Opal.Class.$new(Opal.Object /*, function(){} */);
+    Opal.defn(C, '$initialize', function(){ this.baseInitializeCalled = true; });
     Opal.defn(C, '$m', function(){ return "original"; });
     Opal.defn(C, '$self', function(){ return this; });
 
@@ -214,12 +215,26 @@ describe("opal-utils", function() {
       const base = opalClass();
       const sub = outils.subclass(base, {
         '$m': function() {
-          return "overridden+" + this.inherited.$m();
+          return "overridden+" + this.inherited('$m')();
         },
       });
 
       const obj = sub.$new();
-      assert.equal(obj.$m(), 'overridden+original');
+      assert.equal(obj.$m(), "overridden+original");
+    });
+
+    it("should allow calling the inherited constructor", function() {
+      const base = opalClass();
+      const sub = outils.subclass(base, {
+        '$initialize': function() {
+          this.derivedInitializeCalled = true;
+          this.inherited('$initialize')();
+        },
+      });
+
+      const obj = sub.$new();
+      assert.isTrue(obj.baseInitializeCalled);
+      assert.isTrue(obj.derivedInitializeCalled);
     });
 
     it("should share context beween JS calls", function() {
