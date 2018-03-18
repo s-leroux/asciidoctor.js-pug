@@ -215,7 +215,7 @@ describe("opal-utils", function() {
       const base = opalClass();
       const sub = outils.subclass(base, {
         '$m': function() {
-          return "overridden+" + this.inherited('$m')();
+          return "overridden+" + this.inherited(base, '$m')();
         },
       });
 
@@ -228,13 +228,30 @@ describe("opal-utils", function() {
       const sub = outils.subclass(base, {
         '$initialize': function() {
           this.derivedInitializeCalled = true;
-          this.inherited('$initialize')();
+          this.inherited(base, '$initialize')();
         },
       });
 
       const obj = sub.$new();
       assert.isTrue(obj.baseInitializeCalled);
       assert.isTrue(obj.derivedInitializeCalled);
+    });
+
+    it("should allow calling the inherited method [several levels of subclassing]", function() {
+      const base = opalClass();
+      const sub = outils.subclass(base, {
+        '$m': function() {
+          return "overridden+" + this.inherited(base, '$m')();
+        },
+      });
+      const sub2 = outils.subclass(sub, {
+        '$m': function() {
+          return "level3+" + this.inherited(sub, '$m')();
+        },
+      });
+
+      const obj = sub2.$new();
+      assert.equal(obj.$m(), "level3+overridden+original");
     });
 
     it("should share context beween JS calls", function() {
