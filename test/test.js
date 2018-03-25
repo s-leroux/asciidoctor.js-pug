@@ -53,9 +53,9 @@ describe("asciidoctor", function() {
 
   it("should accept the `templates` parameter", function() {
     const doc = asciidoctor.loadFile('./test/data/005-img-uri.adoc', {
-      templates: {
+      templates: [{
         image: () => 'IMAGE-REMOVED',
-      },
+      }],
     });
     const html = doc.convert();
     debug(html);
@@ -66,9 +66,9 @@ describe("asciidoctor", function() {
   it("should provides the next() method", function() {
     let passed = false; // Prevent evergreen tests
     const doc = asciidoctor.loadFile('./test/data/006-roles.adoc', {
-      templates: {
+      templates: [{
         paragraph: (node) => { assert.isFunction(node.next); passed = true; return ""; },
-      },
+      }],
     });
     const html = doc.convert();
     debug(html);
