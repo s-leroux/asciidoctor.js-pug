@@ -1,7 +1,10 @@
-Hello World
+No role
 
 [.Role1]
 This has the first role
 
 [.Role2]
 This has the second role
+
+[.Role1.Role2]
+This has both roles

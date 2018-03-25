@@ -73,7 +73,7 @@ describe("asciidoctor", function() {
     assert.include(html, '<img src="https://image.dir/source.png" alt="Atl Text Here">');
   });
 
-  it("should give priority to the first matching template", function() {
+  it("should give priority to the last matching template", function() {
     const doc = asciidoctor.loadFile('./test/data/005-img-uri.adoc', {
       templates: [
         { image: (ctx) => 'IMAGE1' },
@@ -84,9 +84,9 @@ describe("asciidoctor", function() {
     const html = doc.convert();
     debug(html);
 
-    assert.include(html, 'IMAGE1');
+    assert.notInclude(html, 'IMAGE1');
     assert.notInclude(html, 'IMAGE2');
-    assert.notInclude(html, 'IMAGE3');
+    assert.include(html, 'IMAGE3');
   });
 
   describe('next()', function() {
@@ -106,9 +106,9 @@ describe("asciidoctor", function() {
     it("should give pass control to the next template", function() {
       const doc = asciidoctor.loadFile('./test/data/005-img-uri.adoc', {
         templates: [
-          { image: (ctx) => ctx.next() },
+          { image: (ctx) => 'IMAGE1' },
           { image: (ctx) => 'IMAGE2' },
-          { image: (ctx) => 'IMAGE3' },
+          { image: (ctx) => ctx.next() },
         ],
       });
       const html = doc.convert();
@@ -122,17 +122,17 @@ describe("asciidoctor", function() {
     it("should give pass control to the next matching template", function() {
       const doc = asciidoctor.loadFile('./test/data/005-img-uri.adoc', {
         templates: [
-          { image: (ctx) => ctx.next() },
+          { image: (ctx) => 'IMAGE1' },
           { },
-          { image: (ctx) => 'IMAGE3' },
+          { image: (ctx) => ctx.next() },
         ],
       });
       const html = doc.convert();
       debug(html);
 
-      assert.notInclude(html, 'IMAGE1');
+      assert.include(html, 'IMAGE1');
       assert.notInclude(html, 'IMAGE2');
-      assert.include(html, 'IMAGE3');
+      assert.notInclude(html, 'IMAGE3');
     });
 
     it("should give pass control to default handler if no next template", function() {
@@ -161,5 +161,40 @@ describe("asciidoctor", function() {
 
       assert.include(html, '<img src="https://image.dir/source.png" alt="Atl Text Here">');
     });
+
+    it("should allow to implement a decorator pattern", function() {
+      const doc = asciidoctor.loadFile('./test/data/005-img-uri.adoc', {
+        templates: [
+          { image: (ctx) => `<div class="IMG">${ctx.next()}</div>` },
+        ],
+      });
+      const html = doc.convert();
+      debug(html);
+
+      assert.match(html, RegExp('<div class="IMG">[\\s\\S]*<img src="https://image.dir/source.png" alt="Atl Text Here">[\\s\\S]*</div>'));
+    });
+
+    it("should allow to conditionally pass control to the base template", function() {
+      const doc = asciidoctor.loadFile('./test/data/006-roles.adoc', {
+        templates: [{
+          paragraph: (ctx) => {
+            if (ctx.node.roles.has("Role1")) {
+              return 'ROLE1 REMOVED';
+            }
+
+            // else
+            return ctx.next();
+          },
+        }],
+      });
+      const html = doc.convert();
+      debug(html);
+
+      assert.include(html, 'ROLE1 REMOVED');
+      assert.notInclude(html, 'This has the first role');
+      assert.include(html, 'This has the second role');
+      assert.notInclude(html, 'This has both roles');
+    });
+
   });
 });
