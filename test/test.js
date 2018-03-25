@@ -63,16 +63,103 @@ describe("asciidoctor", function() {
     assert.include(html, 'IMAGE-REMOVED');
   });
 
-  it("should provides the next() method", function() {
-    let passed = false; // Prevent evergreen tests
-    const doc = asciidoctor.loadFile('./test/data/006-roles.adoc', {
-      templates: [{
-        paragraph: (node) => { assert.isFunction(node.next); passed = true; return ""; },
-      }],
+  it("should accept empty `templates` parameter", function() {
+    const doc = asciidoctor.loadFile('./test/data/005-img-uri.adoc', {
+      templates: [],
     });
     const html = doc.convert();
     debug(html);
 
-    assert.isTrue(passed);
+    assert.include(html, '<img src="https://image.dir/source.png" alt="Atl Text Here">');
+  });
+
+  it("should give priority to the first matching template", function() {
+    const doc = asciidoctor.loadFile('./test/data/005-img-uri.adoc', {
+      templates: [
+        { image: (ctx) => 'IMAGE1' },
+        { image: (ctx) => 'IMAGE2' },
+        { image: (ctx) => 'IMAGE3' },
+      ],
+    });
+    const html = doc.convert();
+    debug(html);
+
+    assert.include(html, 'IMAGE1');
+    assert.notInclude(html, 'IMAGE2');
+    assert.notInclude(html, 'IMAGE3');
+  });
+
+  describe('next()', function() {
+    it("should be present in the context", function() {
+      let passed = false; // Prevent evergreen tests
+      const doc = asciidoctor.loadFile('./test/data/006-roles.adoc', {
+        templates: [{
+          paragraph: (node) => { assert.isFunction(node.next); passed = true; return ""; },
+        }],
+      });
+      const html = doc.convert();
+      debug(html);
+
+      assert.isTrue(passed);
+    });
+
+    it("should give pass control to the next template", function() {
+      const doc = asciidoctor.loadFile('./test/data/005-img-uri.adoc', {
+        templates: [
+          { image: (ctx) => ctx.next() },
+          { image: (ctx) => 'IMAGE2' },
+          { image: (ctx) => 'IMAGE3' },
+        ],
+      });
+      const html = doc.convert();
+      debug(html);
+
+      assert.notInclude(html, 'IMAGE1');
+      assert.include(html, 'IMAGE2');
+      assert.notInclude(html, 'IMAGE3');
+    });
+
+    it("should give pass control to the next matching template", function() {
+      const doc = asciidoctor.loadFile('./test/data/005-img-uri.adoc', {
+        templates: [
+          { image: (ctx) => ctx.next() },
+          { },
+          { image: (ctx) => 'IMAGE3' },
+        ],
+      });
+      const html = doc.convert();
+      debug(html);
+
+      assert.notInclude(html, 'IMAGE1');
+      assert.notInclude(html, 'IMAGE2');
+      assert.include(html, 'IMAGE3');
+    });
+
+    it("should give pass control to default handler if no next template", function() {
+      const doc = asciidoctor.loadFile('./test/data/005-img-uri.adoc', {
+        templates: [
+          { image: (ctx) => ctx.next() },
+        ],
+      });
+      const html = doc.convert();
+      debug(html);
+
+      assert.include(html, '<img src="https://image.dir/source.png" alt="Atl Text Here">');
+    });
+
+    it("should give pass control to default handler if no next template (chain)", function() {
+      const doc = asciidoctor.loadFile('./test/data/005-img-uri.adoc', {
+        templates: [
+          { image: (ctx) => ctx.next() },
+          { image: (ctx) => ctx.next() },
+          { image: (ctx) => ctx.next() },
+          { image: (ctx) => ctx.next() },
+        ],
+      });
+      const html = doc.convert();
+      debug(html);
+
+      assert.include(html, '<img src="https://image.dir/source.png" alt="Atl Text Here">');
+    });
   });
 });
