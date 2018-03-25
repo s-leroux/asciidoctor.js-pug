@@ -50,4 +50,29 @@ describe("asciidoctor", function() {
 
     assert.include(html, '<IMG src="https://image.dir/source.png" alt="Atl Text Here"></IMG>');
   });
+
+  it("should accept the `templates` parameter", function() {
+    const doc = asciidoctor.loadFile('./test/data/005-img-uri.adoc', {
+      template_dirs: {
+        image: () => 'IMAGE-REMOVED',
+      },
+    });
+    const html = doc.convert();
+    debug(html);
+
+    assert.include(html, 'IMAGE-REMOVED');
+  });
+
+  it("should provides the next() method", function() {
+    let passed = false; // Prevent evergreen tests
+    const doc = asciidoctor.loadFile('./test/data/006-roles.adoc', {
+      template_dirs: {
+        paragraph: (node) => { assert.isFunction(node.next); passed = true; return ""; },
+      },
+    });
+    const html = doc.convert();
+    debug(html);
+
+    assert.isTrue(passed);
+  });
 });
