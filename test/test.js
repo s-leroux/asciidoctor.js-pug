@@ -51,11 +51,23 @@ describe("asciidoctor", function() {
     assert.include(html, '<IMG src="https://image.dir/source.png" alt="Atl Text Here"></IMG>');
   });
 
-  it("should accept the `templates` parameter", function() {
+  it("should accept an array as `templates` parameter", function() {
     const doc = asciidoctor.loadFile('./test/data/005-img-uri.adoc', {
       templates: [{
         image: () => 'IMAGE-REMOVED',
       }],
+    });
+    const html = doc.convert();
+    debug(html);
+
+    assert.include(html, 'IMAGE-REMOVED');
+  });
+
+  it("should accept an object as `templates` parameter", function() {
+    const doc = asciidoctor.loadFile('./test/data/005-img-uri.adoc', {
+      templates: {
+        image: () => 'IMAGE-REMOVED',
+      },
     });
     const html = doc.convert();
     debug(html);
