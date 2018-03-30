@@ -15,24 +15,24 @@ Currently, you can define templates as `pug` templates or programmatically using
 ## Basic usage
 This syntax provides an API similar to the one provided by the Asciidoctor Ruby template API.
 
-    // load asciidoctor.js
-    const asciidoctor = require('asciidoctor.js')();
+```js
+// load asciidoctor.js
+const asciidoctor = require('asciidoctor.js')();
 
-    // load asciidoctor.js-pug.
-    // This will register a new TemplateConverter with AsciiDoctor.
-    require('asciidoctor.js-pug');
+// load asciidoctor.js-pug.
+// This will register a new TemplateConverter with AsciiDoctor.
+require('asciidoctor.js-pug');
 
-    // At this point, to convert a node, AsciiDoctor will try first to find
-    // a corresponding pug template in the directory passed in the
-    // `template_dirs` option. Then it will fallback
-    // to the default backend behavior if there is no specific template for
-    // that node.
+// At this point, to convert a node, AsciiDoctor will try first to find
+// a corresponding pug template in the directory passed in the
+// `template_dirs` option. Then it will fallback
+// to the default backend behavior if there is no specific template for
+// that node.
 
-    const doc = asciidoctor.load("Hello world",
-                     { template_dirs: ['./path/to/template/directory'] });
+const doc = asciidoctor.load("Hello world", { template_dirs: ['./path/to/template/directory'] });
 
-    console.log(doc.convert());
-
+console.log(doc.convert());
+```
 
 The template directory should contain one template per type of node you want to process. The template name is made of the node_name + an extension identifying the template engine.
 
@@ -53,61 +53,71 @@ See the test/templates folder for some examples of templates.
 ### Templates Caching
 If you process your documents in batch, it is not efficient to reload the templates for each document. You can pre-load the templates once and pass them to the `Asciidoctor.load` method using the `templates` parameter:
 
-    const asciidoctor = require('asciidoctor.js')();
-    const adt = require('asciidoctor.js-pug');
+```js
+const asciidoctor = require('asciidoctor.js')();
+const adt = require('asciidoctor.js-pug');
 
-    const templates = adt.load_templates('./path/to/template/directory');
+const templates = adt.load_templates('./path/to/template/directory');
 
-    const doc1 = asciidoctor.load("doc1", { templates: [templates] });
-    const doc2 = asciidoctor.load("doc2", { templates: [templates] });
-    const doc3 = asciidoctor.load("doc3", { templates: [templates] });
+const doc1 = asciidoctor.load("doc1", { templates: [templates] });
+const doc2 = asciidoctor.load("doc2", { templates: [templates] });
+const doc3 = asciidoctor.load("doc3", { templates: [templates] });
+```
 
 Beware: just like `template_dirs`, the `templates` option is an array.
 
 ### Template Literals
 Using the `templates` option, you can provide a JavaScript objects that will be used as templates:
 
-    const doc = asciidoctor.load("doc", {
-      templates: [{
-        image: (ctx) => ...,
-        paragraph: (ctx) => ...,
-      }],
-    });
+```js
+const doc = asciidoctor.load("doc", {
+  templates: [{
+    image: (ctx) => ...,
+    paragraph: (ctx) => ...,
+  }],
+});
+```
 
 You can specify several template literals. Once again, if several templates match the same node, the last one wins:
 
-    // This will produce "IMAGE2" for each "image" block
-    const doc = asciidoctor.load("doc", {
-      templates: [{
-        image: (ctx) => 'IMAGE1',
-        paragraph: (ctx) => ...,
-      },{
-        image: (ctx) => 'IMAGE2',
-      }],
-    });
+```js
+// This will produce "IMAGE2" for each "image" block
+const doc = asciidoctor.load("doc", {
+  templates: [{
+    image: (ctx) => 'IMAGE1',
+    paragraph: (ctx) => ...,
+  },{
+    image: (ctx) => 'IMAGE2',
+  }],
+});
+```
 
 Internally, when `template_dirs` is provided, the templates in the given directories are loaded and prepend to the (possibly empty) `templates` array.
 For example, the following piece of code:
 
-    const doc = asciidoctor.load("Hello world", {
-      template_dirs: ['./path/to/template/directory'],
-      templates: [
-        {
-          paragraph: (ctx) => ...,
-        }
-      ],
-    });
+```js
+const doc = asciidoctor.load("Hello world", {
+  template_dirs: ['./path/to/template/directory'],
+  templates: [
+    {
+      paragraph: (ctx) => ...,
+    }
+  ],
+});
+```
 
 will be processed exactly like this one:
 
-    const doc = asciidoctor.load("Hello world", {
-      templates: [
-        adt.load_templates('./path/to/template/directory'),
-        {
-          paragraph: (ctx) => ...,
-        }
-      ],
-    });
+```js
+const doc = asciidoctor.load("Hello world", {
+  templates: [
+    adt.load_templates('./path/to/template/directory'),
+    {
+      paragraph: (ctx) => ...,
+    }
+  ],
+});
+```
 
 In other words, when both `template_dirs` and `templates` are provided, `template_dirs` always has a _lower_ priority. If you need your template to be processed in a different order, you will have to explicitly load and pass them at the right position in the `templates` option.
 
@@ -116,28 +126,32 @@ When templates are processed, you can use `ctx.next()` to execute the next _matc
 
 The following code sample will remove from the output all paragraphs having the role "SECRET" and will replace them with the word "CENSORED". Paragraph blocks without the "SECRET" role are processed as usual by the base converter.
 
-    const doc = asciidoctor.load("Hello world", {
-      templates: [{
-        paragraph: (ctx) => {
-          if (ctx.node.roles.has("SECRET")) {
-            return '<div>CENSORED</div>';
-          }
+```js
+const doc = asciidoctor.load("Hello world", {
+  templates: [{
+    paragraph: (ctx) => {
+      if (ctx.node.roles.has("SECRET")) {
+        return '<div>CENSORED</div>';
+      }
 
-          // else
-          return ctx.next();
-        },
-      }],
-    });
+      // else
+      return ctx.next();
+    },
+  }],
+});
+```
 
 The `next()` function is also useful when you want to implement a decorator pattern:
 
-    const doc = asciidoctor.load("Hello world", {
-      templates: [{
-          image: (ctx) => {
-            return `<div class="image">${ctx.next()}</div>`;
-          },
-        }],
-    });
+```js
+const doc = asciidoctor.load("Hello world", {
+  templates: [{
+      image: (ctx) => {
+        return `<div class="image">${ctx.next()}</div>`;
+      },
+    }],
+});
+```
 
 If `next()` is called and there are no more templates in the template chain, the control is transferred to the default backend implementation.
 
