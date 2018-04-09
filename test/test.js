@@ -101,6 +101,42 @@ describe("asciidoctor", function() {
     assert.include(html, 'IMAGE3');
   });
 
+  describe('template_engines', function() {
+    it("should accept custom extensions as glob patterns", function() {
+      const doc = asciidoctor.loadFile('./test/data/005-img-uri.adoc', {
+        template_dirs: [
+          './test/templates-alt'
+        ],
+        template_engines: [{
+          patterns: "*.xyz",
+          engine: require('../lib/template-engines/pug.js'),
+        }],
+      });
+      const html = doc.convert();
+      debug(html);
+
+      assert.include(html, '<PARA>');
+      assert.notInclude(html, '<IMG');
+    });
+
+    it("should accept a star as catch all glob pattern", function() {
+      const doc = asciidoctor.loadFile('./test/data/005-img-uri.adoc', {
+        template_dirs: [
+          './test/templates-alt'
+        ],
+        template_engines: [{
+          patterns: "*",
+          engine: require('../lib/template-engines/pug.js'),
+        }],
+      });
+      const html = doc.convert();
+      debug(html);
+
+      assert.include(html, '<PARA>');
+      assert.include(html, '<IMG');
+    });
+  });
+
   describe('next()', function() {
     it("should be present in the context", function() {
       let passed = false; // Prevent evergreen tests
