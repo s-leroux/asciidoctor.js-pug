@@ -136,7 +136,7 @@ describe("asciidoctor", function() {
       assert.include(html, '<IMG');
     });
 
-    it("should accept an engine object as argument to template_engines", function() {
+    it("should accept a composite engine object as argument to template_engines", function() {
       const composite = require("../lib/template-engines/composite.js");
       const engine = composite.create()
                       .register("*.xyz", require('../lib/template-engines/pug.js'));
@@ -152,6 +152,20 @@ describe("asciidoctor", function() {
 
       assert.include(html, '<PARA>');
       assert.notInclude(html, '<IMG');
+    });
+
+    it("should accept an engine object as argument to template_engines", function() {
+      const doc = asciidoctor.loadFile('./test/data/005-img-uri.adoc', {
+        template_dirs: [
+          './test/templates-alt'
+        ],
+        template_engines: require('../lib/template-engines/pug.js'),
+      });
+      const html = doc.convert();
+      debug(html);
+
+      assert.include(html, '<PARA>');
+      assert.include(html, '<IMG');
     });
 
 
