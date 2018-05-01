@@ -260,7 +260,7 @@ describe("asciidoctor", function() {
       const doc = asciidoctor.loadFile('./test/data/006-roles.adoc', {
         templates: [{
           paragraph: (ctx) => {
-            if (ctx.node.roles.has("Role1")) {
+            if (ctx.node.getRoles().includes("Role1")) {
               return 'ROLE1 REMOVED';
             }
 
