@@ -6,6 +6,7 @@ Currently, you can define templates as `pug` templates or programmatically using
 
 
 [![Build Status](https://travis-ci.org/s-leroux/asciidoctor.js-pug.png?branch=master)](https://travis-ci.org/s-leroux/asciidoctor.js-pug)
+[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
 ## Installation
 
