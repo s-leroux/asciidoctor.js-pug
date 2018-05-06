@@ -1,4 +1,7 @@
 language: node_js
 node_js:
   - '7'
+  - '7.0'
+  - '7.6'
+  - '8.9'
   - 'lts/*'
