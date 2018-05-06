@@ -171,7 +171,7 @@ The context contains the following items:
 
 ## Node version
 Require NodeJS >= v7.0
-Tested with v7.0, v7.6 and v8.9
+Tested with v7.0, v7.6, v8.9 and the lastest LTS node versions
 
 ## License
 
