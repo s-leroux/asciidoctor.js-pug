@@ -130,7 +130,7 @@ The following code sample will remove from the output all paragraphs having the 
 const doc = asciidoctor.load("Hello world", {
   templates: [{
     paragraph: (ctx) => {
-      if (ctx.node.roles.has("SECRET")) {
+      if (ctx.node.getRoles().includes('SECRET')) {
         return '<div>CENSORED</div>';
       }
 
@@ -160,13 +160,11 @@ When invoked, a context is passed to the template function. It can be passed exp
 
 The context contains the following items:
 
-* `ctx.node.content()` a function returning the content of the node. The content is passed through the converters before being returned.
-* `ctx.node.image_uri()` a wrapper to the `image_uri` function provided by Asciidoctor to generate proper image URIs
-* `ctx.node.attributes` the node attributes as a JavaScript object
-* `ctx.node.roles` the block roles as a JavaScript `Set`
+* `ctx.node.getContent()` a function returning the content of the node. The content is passed through the converters before being returned.
+* `ctx.node.getImageUri()` a wrapper to the `image_uri` function provided by Asciidoctor to generate proper image URIs
+* `ctx.node.getAttributes()` the node attributes as a JavaScript object
+* `ctx.node.getRoles()` the block roles as a JavaScript `Array`
 * `ctx.next()` process the the current node throught the template chain starting at the _next_ (by order of priority) template in the chain
-* `ctx.$node` the original Opal/Ruby node object
-
 
 ## Node version
 Require NodeJS >= v7.0
