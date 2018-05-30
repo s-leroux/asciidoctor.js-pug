@@ -73,8 +73,8 @@ Using the `templates` option, you can provide a JavaScript objects that will be 
 ```js
 const doc = asciidoctor.load('doc', {
   templates: [{
-    image: (ctx) => {/* ... */},
-    paragraph: (ctx) => {/* ... */},
+    image: (node, next) => {/* ... */},
+    paragraph: (node, next) => {/* ... */},
   }],
 });
 ```
@@ -85,10 +85,10 @@ You can specify several template literals. Once again, if several templates matc
 // This will produce "IMAGE2" for each "image" block
 const doc = asciidoctor.load('doc', {
   templates: [{
-    image: (ctx) => 'IMAGE1',
-    paragraph: (ctx) => {/* ... */},
+    image: (node, next) => 'IMAGE1',
+    paragraph: (node, next) => {/* ... */},
   },{
-    image: (ctx) => 'IMAGE2',
+    image: (node, next) => 'IMAGE2',
   }],
 });
 ```
@@ -101,7 +101,7 @@ const doc = asciidoctor.load('Hello world', {
   template_dirs: ['./path/to/template/directory'],
   templates: [
     {
-      paragraph: (ctx) => {/* ... */},
+      paragraph: (node, next) => {/* ... */},
     }
   ],
 });
@@ -114,7 +114,7 @@ const doc = asciidoctor.load('Hello world', {
   templates: [
     adt.load_templates('./path/to/template/directory'),
     {
-      paragraph: (ctx) => {/* ... */},
+      paragraph: (node, next) => {/* ... */},
     }
   ],
 });
@@ -131,7 +131,7 @@ The following code sample will remove from the output all paragraphs having the 
 const doc = asciidoctor.load('Hello world', {
   templates: [{
     paragraph: (node, next) => {
-      if (node.roles.has('SECRET')) {
+      if (node.hasRole('SECRET')) {
         return '<div>CENSORED</div>';
       }
 
