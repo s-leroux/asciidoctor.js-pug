@@ -90,9 +90,9 @@ describe('asciidoctor', function () {
   it('should give priority to the last matching template', function () {
     const doc = asciidoctor.loadFile('./test/data/005-img-uri.adoc', {
       templates: [
-        { image: (ctx) => 'IMAGE1' },
-        { image: (ctx) => 'IMAGE2' },
-        { image: (ctx) => 'IMAGE3' }
+        { image: (node) => 'IMAGE1' },
+        { image: (node) => 'IMAGE2' },
+        { image: (node) => 'IMAGE3' }
       ]
     })
     const html = doc.convert()
@@ -176,7 +176,7 @@ describe('asciidoctor', function () {
       let passed = false // Prevent evergreen tests
       const doc = asciidoctor.loadFile('./test/data/006-roles.adoc', {
         templates: [{
-          paragraph: (node) => { assert.isFunction(node.next); passed = true; return '' }
+          paragraph: (node, next) => { assert.isFunction(next); passed = true; return '' }
         }]
       })
       const html = doc.convert()
@@ -188,9 +188,9 @@ describe('asciidoctor', function () {
     it('should give pass control to the next template', function () {
       const doc = asciidoctor.loadFile('./test/data/005-img-uri.adoc', {
         templates: [
-          { image: (ctx) => 'IMAGE1' },
-          { image: (ctx) => 'IMAGE2' },
-          { image: (ctx) => ctx.next() }
+          { image: (node, next) => 'IMAGE1' },
+          { image: (node, next) => 'IMAGE2' },
+          { image: (node, next) => next() }
         ]
       })
       const html = doc.convert()
@@ -204,9 +204,9 @@ describe('asciidoctor', function () {
     it('should give pass control to the next matching template', function () {
       const doc = asciidoctor.loadFile('./test/data/005-img-uri.adoc', {
         templates: [
-          { image: (ctx) => 'IMAGE1' },
+          { image: (node, next) => 'IMAGE1' },
           { },
-          { image: (ctx) => ctx.next() }
+          { image: (node, next) => next() }
         ]
       })
       const html = doc.convert()
@@ -220,7 +220,7 @@ describe('asciidoctor', function () {
     it('should give pass control to default handler if no next template', function () {
       const doc = asciidoctor.loadFile('./test/data/005-img-uri.adoc', {
         templates: [
-          { image: (ctx) => ctx.next() }
+          { image: (node, next) => next() }
         ]
       })
       const html = doc.convert()
@@ -232,10 +232,10 @@ describe('asciidoctor', function () {
     it('should give pass control to default handler if no next template (chain)', function () {
       const doc = asciidoctor.loadFile('./test/data/005-img-uri.adoc', {
         templates: [
-          { image: (ctx) => ctx.next() },
-          { image: (ctx) => ctx.next() },
-          { image: (ctx) => ctx.next() },
-          { image: (ctx) => ctx.next() }
+          { image: (node, next) => next() },
+          { image: (node, next) => next() },
+          { image: (node, next) => next() },
+          { image: (node, next) => next() }
         ]
       })
       const html = doc.convert()
@@ -247,7 +247,7 @@ describe('asciidoctor', function () {
     it('should allow to implement a decorator pattern', function () {
       const doc = asciidoctor.loadFile('./test/data/005-img-uri.adoc', {
         templates: [
-          { image: (ctx) => `<div class="IMG">${ctx.next()}</div>` }
+          { image: (node, next) => `<div class="IMG">${next()}</div>` }
         ]
       })
       const html = doc.convert()
@@ -259,13 +259,13 @@ describe('asciidoctor', function () {
     it('should allow to conditionally pass control to the base template', function () {
       const doc = asciidoctor.loadFile('./test/data/006-roles.adoc', {
         templates: [{
-          paragraph: (ctx) => {
-            if (ctx.node.roles.has('Role1')) {
+          paragraph: (node, next) => {
+            if (node.roles.has('Role1')) {
               return 'ROLE1 REMOVED'
             }
 
             // else
-            return ctx.next()
+            return next()
           }
         }]
       })

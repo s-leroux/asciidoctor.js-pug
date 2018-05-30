@@ -123,20 +123,20 @@ const doc = asciidoctor.load('Hello world', {
 In other words, when both `template_dirs` and `templates` are provided, `template_dirs` always has a _lower_ priority. If you need your template to be processed in a different order, you will have to explicitly load and pass them at the right position in the `templates` option.
 
 ### Transfering control to the next template
-When templates are processed, you can use `ctx.next()` to execute the next _matching_ template in the template chain. This allows to conditionally override a template based on other attributes than the node name.
+When templates are processed, you can use `next()` to execute the next _matching_ template in the template chain. This allows to conditionally override a template based on other attributes than the node name.
 
 The following code sample will remove from the output all paragraphs having the role "SECRET" and will replace them with the word "CENSORED". Paragraph blocks without the "SECRET" role are processed as usual by the base converter.
 
 ```js
 const doc = asciidoctor.load('Hello world', {
   templates: [{
-    paragraph: (ctx) => {
-      if (ctx.node.roles.has('SECRET')) {
+    paragraph: (node, next) => {
+      if (node.roles.has('SECRET')) {
         return '<div>CENSORED</div>';
       }
 
       // else
-      return ctx.next();
+      return next();
     },
   }],
 });
@@ -147,8 +147,8 @@ The `next()` function is also useful when you want to implement a decorator patt
 ```js
 const doc = asciidoctor.load('Hello world', {
   templates: [{
-      image: (ctx) => {
-        return `<div class="image">${ctx.next()}</div>`;
+      image: (node, next) => {
+        return `<div class="image">${next()}</div>`;
       },
     }],
 });
@@ -156,17 +156,15 @@ const doc = asciidoctor.load('Hello world', {
 
 If `next()` is called and there are no more templates in the template chain, the control is transferred to the default backend implementation.
 
-### Context
-When invoked, a context is passed to the template function. It can be passed explicitly as a parameter in literal template objects. Or using the suitable mechanism corresponding to your template engine. In Pug, the context is passed as the _local_ environment (so, you won't need the `ctx.` prefix).
+### Node
+The node object if given as the first argument of the template function or using the suitable mechanism corresponding to your template engine. In Pug, the node is passed as the _local_ environment.
 
 The context contains the following items:
 
-* `ctx.node.content()` a function returning the content of the node. The content is passed through the converters before being returned.
-* `ctx.node.image_uri()` a wrapper to the `image_uri` function provided by Asciidoctor to generate proper image URIs
-* `ctx.node.attributes` the node attributes as a JavaScript object
-* `ctx.node.roles` the block roles as a JavaScript `Set`
-* `ctx.next()` process the the current node throught the template chain starting at the _next_ (by order of priority) template in the chain
-* `ctx.$node` the original Opal/Ruby node object
+* `node.content()` a function returning the content of the node. The content is passed through the converters before being returned.
+* `node.image_uri()` a wrapper to the `image_uri` function provided by Asciidoctor to generate proper image URIs
+* `node.attributes` the node attributes as a JavaScript object
+* `node.roles` the block roles as a JavaScript `Set`
 
 
 ## Node version
