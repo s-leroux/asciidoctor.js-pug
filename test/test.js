@@ -1,7 +1,7 @@
 /* global describe, it */
 
 const asciidoctor = require('asciidoctor.js')()
-require('../index.js')
+require('asciidoctor.js-template')
 
 const debug = require('debug')('asciidoctor.js-pug:tests')
 const assert = require('chai').assert
@@ -16,37 +16,67 @@ describe('asciidoctor', function () {
   })
 
   it('should convert simple texts', function () {
-    const doc = asciidoctor.loadFile('./test/data/001-plain-text.adoc', {template_dirs: './test/templates'})
-    const html = doc.convert({template_dirs: './test/templates'})
+    const doc = asciidoctor.loadFile('./test/data/001-plain-text.adoc', {
+      template_dirs: './test/templates',
+      template_engines: [{
+        patterns: '*.pug',
+        engine: require('../index.js')
+      }]
+    })
+    const html = doc.convert()
     debug(html)
   })
 
   it('should find templates for block elements', function () {
-    const doc = asciidoctor.loadFile('./test/data/002-blocks.adoc', {template_dirs: './test/templates'})
-    const html = doc.convert({template_dirs: './test/templates'})
+    const doc = asciidoctor.loadFile('./test/data/002-blocks.adoc', {
+      template_dirs: './test/templates',
+      template_engines: [{
+        patterns: '*.pug',
+        engine: require('../index.js')
+      }]
+    })
+    const html = doc.convert()
 
     debug(html)
     assert.include(html, '<PARA>')
   })
 
   it("should find href and anchor's target", function () {
-    const doc = asciidoctor.loadFile('./test/data/003-anchors.adoc', {template_dirs: './test/templates'})
-    const html = doc.convert({template_dirs: './test/templates'})
+    const doc = asciidoctor.loadFile('./test/data/003-anchors.adoc', {
+      template_dirs: './test/templates',
+      template_engines: [{
+        patterns: '*.pug',
+        engine: require('../index.js')
+      }]
+    })
+    const html = doc.convert()
     debug(html)
 
     assert.include(html, '<A HREF="http://asciidoctor.org">asciidoctor</A>')
   })
 
   it('should access attributes', function () {
-    const doc = asciidoctor.loadFile('./test/data/004-attributes.adoc', {template_dirs: './test/templates'})
-    const html = doc.convert({template_dirs: './test/templates'})
+    const doc = asciidoctor.loadFile('./test/data/004-attributes.adoc', {
+      template_dirs: './test/templates',
+      template_engines: [{
+        patterns: '*.pug',
+        engine: require('../index.js')
+      }]
+    })
+    const html = doc.convert()
     debug(html)
 
     assert.include(html, '<IMG src="source.png" alt="Atl Text Here"></IMG>')
   })
 
   it('should build proper image URI', function () {
-    const doc = asciidoctor.loadFile('./test/data/005-img-uri.adoc', {template_dirs: './test/templates'})
+    const doc = asciidoctor.loadFile('./test/data/005-img-uri.adoc', {
+      template_dirs: './test/templates',
+      template_engines: [{
+        patterns: '*.pug',
+        engine: require('../index.js')
+      }]
+    })
     const html = doc.convert()
     debug(html)
 
@@ -111,7 +141,7 @@ describe('asciidoctor', function () {
         ],
         template_engines: [{
           patterns: '*.xyz',
-          engine: require('../lib/template-engines/pug.js')
+          engine: require('../index.js')
         }]
       })
       const html = doc.convert()
@@ -128,7 +158,7 @@ describe('asciidoctor', function () {
         ],
         template_engines: [{
           patterns: '*',
-          engine: require('../lib/template-engines/pug.js')
+          engine: require('../lib/index.js')
         }]
       })
       const html = doc.convert()
@@ -139,9 +169,9 @@ describe('asciidoctor', function () {
     })
 
     it('should accept a composite engine object as argument to template_engines', function () {
-      const composite = require('../lib/template-engines/composite.js')
+      const composite = require('asciidoctor.js-template').composite
       const engine = composite.create()
-        .register('*.xyz', require('../lib/template-engines/pug.js'))
+        .register('*.xyz', require('../lib/index.js'))
 
       const doc = asciidoctor.loadFile('./test/data/005-img-uri.adoc', {
         template_dirs: [
@@ -161,7 +191,7 @@ describe('asciidoctor', function () {
         template_dirs: [
           './test/templates-alt'
         ],
-        template_engines: require('../lib/template-engines/pug.js')
+        template_engines: require('../lib/index.js')
       })
       const html = doc.convert()
       debug(html)
