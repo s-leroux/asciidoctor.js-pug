@@ -256,6 +256,21 @@ describe('asciidoctor', function () {
       assert.match(html, RegExp('<div class="IMG">[\\s\\S]*<img src="https://image.dir/source.png" alt="Atl Text Here">[\\s\\S]*</div>'))
     })
 
+    it('should chain decorators', function () {
+      const doc = asciidoctor.loadFile('./test/data/005-img-uri.adoc', {
+        templates: [
+          { image: (node, next) => `<D>${next()}</D>` },
+          { image: (node, next) => `<C>${next()}</C>` },
+          { image: (node, next) => `<B>${next()}</B>` },
+          { image: (node, next) => `<A>${next()}</A>` }
+        ]
+      })
+      const html = doc.convert()
+      debug(html)
+
+      assert.match(html, /<A><B><C><D><div class="imageblock">[\s\S]*<\/div><\/D><\/C><\/B><\/A>/)
+    })
+
     it('should allow to conditionally pass control to the base template', function () {
       const doc = asciidoctor.loadFile('./test/data/006-roles.adoc', {
         templates: [{
